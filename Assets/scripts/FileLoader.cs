@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEngine;
+using System;
 #if UNITY_EDITOR || UNITY_STANDALONE
 using System.Windows.Forms;
 #endif
@@ -33,4 +34,26 @@ public class FileLoader : MonoBehaviour {
             btnGenerate.interactable = false;
         }
     }
+
+    public void GetMessage(int _lineNr) {
+        string line = sourceText[_lineNr];
+        string dt = line.Split('-')[0];
+    }
+
 }
+
+public struct Message {
+    DateTime dateTime;
+    string emitter;
+    string message;
+
+    public Message(DateTime _dateTime, string _emitter, string _message) {
+        dateTime = _dateTime;
+        emitter = _emitter;
+        message = _message;
+    }
+
+
+}
+
+

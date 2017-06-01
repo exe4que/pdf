@@ -16,6 +16,10 @@ public class ExampleRenderer : MonoBehaviour, PageRenderer {
         return positions.Length;
     }
 
+    public void LoadDocument() {
+        throw new NotImplementedException();
+    }
+
     public void NextPage() {
         pos = pos < positions.Length - 1 ? pos + 1 : pos;
         Render();

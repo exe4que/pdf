@@ -5,4 +5,5 @@
     void Render();
     int GetPageCount();
     int GetCurrentPage();
+    void LoadDocument();
 }
