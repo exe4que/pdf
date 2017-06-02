@@ -5,26 +5,38 @@ using UnityEngine;
 
 public class DocumentRenderer : MonoBehaviour, PageRenderer {
 
-    FileLoader fileLoader;
-    DocumentManager documentManager;
+    private FileLoader fileLoader;
+    private DocumentManager documentManager;
+    private bool start = false, tick = true;
+    private int index;
+
+    private void Update() {
+        if (start && index < fileLoader.messages.Length) {
+            if (tick) {
+                documentManager.AdjustLastBubbleSize();
+            } else {
+                documentManager.AddMessage(fileLoader.messages[index]);
+                index++;
+            }
+            tick = !tick;
+        }
+    }
 
     private void Init() {
         fileLoader = GetComponent<FileLoader>();
         documentManager = GameObject.FindGameObjectWithTag("DocumentManager").GetComponent<DocumentManager>();
+        start = true;
     }
     public int GetCurrentPage() {
         throw new NotImplementedException();
     }
 
     public int GetPageCount() {
-        throw new NotImplementedException();
+        return 1;
     }
 
     public void LoadDocument() {
         Init();
-        for (int i = 0; i < fileLoader.messages.Length; i++) {
-            documentManager.AddMessage(fileLoader.messages[i]);
-        }
     }
 
     public void NextPage() {

@@ -24,7 +24,7 @@ public class PdfGenerator : MonoBehaviour {
     bool takeScreenshoots = false;
     Texture2D[] docTextures;
 
-    private void Awake() {
+    private void Init() {
         pageRenderer = GetComponent<PageRenderer>();
         docTextures = new Texture2D[pageRenderer.GetPageCount()];
         pageRenderer.Render();
@@ -43,6 +43,7 @@ public class PdfGenerator : MonoBehaviour {
     }
 
     public void GeneratePDF() {
+        Init();
         takeScreenshoots = true;
     }
 
