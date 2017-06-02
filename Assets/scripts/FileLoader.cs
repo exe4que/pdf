@@ -3,6 +3,8 @@ using UnityEngine;
 using System;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Collections.Generic;
+using UnityEngine.UI;
 #if UNITY_EDITOR || UNITY_STANDALONE
 using System.Windows.Forms;
 #endif
@@ -11,10 +13,16 @@ public class FileLoader : MonoBehaviour {
 
     public string[] sourceText;
     public Message[] messages;
-    UnityEngine.UI.Button btnGenerate;
+    public List<String> members;
+
+    private UnityEngine.UI.Button btnGenerate;
+    private Dropdown cmbMembers;
+    private DocumentManager documentManager;
 
     private void Awake() {
         btnGenerate = GameObject.Find("btnGeneratePdf").GetComponent<UnityEngine.UI.Button>();
+        cmbMembers = GameObject.FindGameObjectWithTag("Members").GetComponent<Dropdown>();
+        documentManager = GameObject.FindGameObjectWithTag("DocumentManager").GetComponent<DocumentManager>();
     }
 
     public void LoadFile() {
@@ -37,8 +45,14 @@ public class FileLoader : MonoBehaviour {
                 messages[i] = LineToMessage(sourceText[i]);
             }
 
+            foreach (string member in members) {
+                cmbMembers.options.Add(new Dropdown.OptionData(member));
+            }
+
+            cmbMembers.interactable = true;
             btnGenerate.interactable = true;
         } else{
+            cmbMembers.interactable = false;
             btnGenerate.interactable = false;
         }
     }
@@ -72,7 +86,12 @@ public class FileLoader : MonoBehaviour {
 
         string message = split[1].TrimStart();
         split = split[0].Split('-');
-        string emitter = split[1].TrimStart(); 
+        string emitter = split[1].TrimStart();
+
+        if (!members.Contains(emitter)) {
+            members.Add(emitter);
+        }
+
         string dateTimeString = split[0].TrimEnd();
         dateTimeString = dateTimeString.Replace(",", string.Empty);
         DateTime dateTime = DateTime.Parse(dateTimeString);
