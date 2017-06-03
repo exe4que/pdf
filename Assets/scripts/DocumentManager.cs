@@ -24,6 +24,7 @@ public class DocumentManager : MonoBehaviour {
     }
 
     public void AddMessage(Message _message) {
+        
         ManageDocumentFlow();
 
         bool isMainMember = _message.emitter == mainMember;
@@ -40,16 +41,17 @@ public class DocumentManager : MonoBehaviour {
     }
 
     private void ManageDocumentFlow() {
-        if (lastContainer!=null) {
+        if (lastContainer != null) {
+            lastContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(384, lastBubble.GetComponent<RectTransform>().sizeDelta.y + 20);
             accumulatedHeight += lastContainer.GetComponent<RectTransform>().rect.height;
         }
         
         if (accumulatedHeight > 1102f) {
             if (activeColumn == 1) {
                 activeParent = activeParent.parent.FindChild("Column2");
-                lastBubble.transform.SetParent(activeParent);
+                lastContainer.transform.SetParent(activeParent);
                 activeColumn = 2;
-                accumulatedHeight = 0;
+                accumulatedHeight = lastContainer.GetComponent<RectTransform>().sizeDelta.y;
             } else {
                 GameObject newPage = Instantiate(page, this.transform);
                 activePage++;
@@ -57,10 +59,13 @@ public class DocumentManager : MonoBehaviour {
                 activeParent = newPage.transform.FindChild("Column1");
                 activeColumn = 1;
                 accumulatedHeight = 0;
+                lastContainer.transform.SetParent(activeParent);
+                accumulatedHeight = lastContainer.GetComponent<RectTransform>().sizeDelta.y;
             }
         }
-
-        Debug.Log("Page: " + activePage + ", Column: " + activeColumn + ", Parent: " + activeParent.gameObject.name + ", accumulatedHeight: " + accumulatedHeight);
+        string name = lastContainer == null ? "null" : lastContainer.name;
+        Rect r = lastContainer == null ? new Rect() : lastContainer.GetComponent<RectTransform>().rect;
+        Debug.Log("Page: " + activePage + ", Column: " + activeColumn + ", Parent: " + activeParent.gameObject.name + ", Container: " + name + ", Height: " + r);
     }
 
     public void SetMainMember() {
@@ -72,5 +77,6 @@ public class DocumentManager : MonoBehaviour {
             return;
         }
         lastBubble.ApplyMaxSize();
+        
     }
 }

@@ -7,18 +7,20 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
 
     private FileLoader fileLoader;
     private DocumentManager documentManager;
-    private bool start = false, tick = true;
-    private int index;
+    private bool start = false;
+    private int index, tick=1;
 
     private void Update() {
         if (start && index < fileLoader.messages.Length) {
-            if (tick) {
+            if (tick==1) {
                 documentManager.AdjustLastBubbleSize();
-            } else {
+            }
+            if(tick==2) {
                 documentManager.AddMessage(fileLoader.messages[index]);
                 index++;
+                tick = 0;
             }
-            tick = !tick;
+            tick++;
         }
     }
 
