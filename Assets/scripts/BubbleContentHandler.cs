@@ -9,12 +9,13 @@ public class BubbleContentHandler : MonoBehaviour {
 
     ContentSizeFitter filter;
     RectTransform rect;
-    Text childText;
+    public Text childText, childTitle;
 
-    void Init () {
+    public void Init (int _membersCount) {
+        if (_membersCount <= 2) Destroy(childTitle);
         filter = this.GetComponent<ContentSizeFitter>();
         rect = this.GetComponent<RectTransform>();
-        childText = this.GetComponentInChildren<Text>();
+        //childText = this.GetComponentInChildren<Text>();
 	}
 
     public void ApplyMaxSize() {
@@ -27,8 +28,12 @@ public class BubbleContentHandler : MonoBehaviour {
         }
     }
 
+
     public void SetText(string _text) {
-        Init();
         childText.text = _text;
+    }
+
+    public void SetTitle(string _title) {
+        childTitle.text = _title;
     }
 }

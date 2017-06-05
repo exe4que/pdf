@@ -35,7 +35,9 @@ public class DocumentManager : MonoBehaviour {
         GameObject newBubble = Instantiate(bubble, newContainer.transform);
 
         BubbleContentHandler bubbleHandler = newBubble.GetComponent<BubbleContentHandler>();
+        bubbleHandler.Init(fileLoader.members.Count);
         bubbleHandler.SetText(_message.message);
+        if (fileLoader.members.Count > 2) bubbleHandler.SetTitle(_message.emitter);
         lastBubble = bubbleHandler;
         lastContainer = newContainer.transform;
     }
@@ -49,10 +51,15 @@ public class DocumentManager : MonoBehaviour {
             } else {
                 lastContainerTransform.sizeDelta = new Vector2(384, 1080);
                 lastContainer.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(20, 0, 0, 0);
-                lastBubble.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(18, 5, 0, 0);
-                Text txt = lastBubble.GetComponentInChildren<Text>();
-                txt.resizeTextMinSize = 0;
-                txt.resizeTextForBestFit = true;
+                lastBubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(18, 5, 0, 0);
+                Text txt;
+                foreach (Transform t in lastBubble.transform) {
+                    if (t.gameObject.name == "Text") {
+                        txt = t.GetComponent<Text>();
+                        txt.resizeTextMinSize = 0;
+                        txt.resizeTextForBestFit = true;
+                    }
+                }
                 lastBubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
                 lastBubbleTransform.sizeDelta = new Vector2(340, 1080);
             }
