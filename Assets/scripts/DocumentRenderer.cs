@@ -8,10 +8,10 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
     private FileLoader fileLoader;
     private DocumentManager documentManager;
     private bool start = false;
-    private int index, tick=1;
+    private int index=0, tick=1;
 
     private void Update() {
-        if (start && index < fileLoader.messages.Length) {
+        if (start && index < fileLoader.messages.Count) {
             if (tick==1) {
                 documentManager.AdjustLastBubbleSize();
             }

@@ -11,8 +11,8 @@ using System.Windows.Forms;
 
 public class FileLoader : MonoBehaviour {
 
-    public string[] sourceText;
-    public Message[] messages;
+    public List<string> sourceText;
+    public List<Message> messages;
     public List<String> members;
 
     private UnityEngine.UI.Button btnGenerate;
@@ -38,13 +38,18 @@ public class FileLoader : MonoBehaviour {
                 content = read.ReadToEnd();
             }
 
-            sourceText = content.Split('\n');
+            sourceText = content.Split('\n').ToList<string>();
             CleanSourceText();
-            messages = new Message[sourceText.Length];
-            for (int i = 0; i < sourceText.Length; i++) {
-                messages[i] = LineToMessage(sourceText[i]);
+            //messages = new Message[sourceText.Length];
+            //for (int i = 0; i < sourceText.Length; i++) {
+            //    messages[i] = LineToMessage(sourceText[i]);
+            //}
+
+            foreach (string line in sourceText) {
+                messages.Add(LineToMessage(line));
             }
 
+            cmbMembers.options.Clear();
             foreach (string member in members) {
                 cmbMembers.options.Add(new Dropdown.OptionData(member));
             }
@@ -58,7 +63,7 @@ public class FileLoader : MonoBehaviour {
     }
 
     private void CleanSourceText() {
-        for (int i = sourceText.Length-1; i > -1; i--) {
+        for (int i = sourceText.Count-1; i > -1; i--) {
 
             Regex rgx = new Regex(@"\d{1,2}/\d{1,2}/\d{2}");
             Match mat = sourceText[i].Length < 8 ? rgx.Match(sourceText[i]) : rgx.Match(sourceText[i], 0, 8);
@@ -78,7 +83,15 @@ public class FileLoader : MonoBehaviour {
             }
 
         }
-        sourceText = sourceText.Where(c => c != null).ToArray();
+        sourceText = sourceText.Where(c => c != null).ToList<string>();
+    }
+
+    private void SplitLongMessages() {
+        for (int i = 0; i < sourceText.Count; i++) {
+            int line = sourceText[i].Count(f => f == '\n');
+
+        }
+
     }
 
     private Message LineToMessage(string _line) {
