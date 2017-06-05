@@ -47,12 +47,14 @@ public class DocumentManager : MonoBehaviour {
             if (lastBubbleTransform.sizeDelta.y <= 1080) {
                 lastContainerTransform.sizeDelta = new Vector2(384, lastBubbleTransform.sizeDelta.y + 20);
             } else {
-                lastContainerTransform.sizeDelta = new Vector2(384, 1100);
-                lastBubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-                lastBubbleTransform.sizeDelta = new Vector2(lastBubbleTransform.sizeDelta.x, 1080);
+                lastContainerTransform.sizeDelta = new Vector2(384, 1080);
+                lastContainer.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(20, 0, 0, 0);
+                lastBubble.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(18, 5, 0, 0);
                 Text txt = lastBubble.GetComponentInChildren<Text>();
                 txt.resizeTextMinSize = 0;
                 txt.resizeTextForBestFit = true;
+                lastBubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+                lastBubbleTransform.sizeDelta = new Vector2(340, 1080);
             }
             
             accumulatedHeight += lastContainerTransform.sizeDelta.y;
