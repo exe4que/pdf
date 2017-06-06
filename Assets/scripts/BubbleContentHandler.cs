@@ -9,7 +9,8 @@ public class BubbleContentHandler : MonoBehaviour {
 
     ContentSizeFitter filter;
     RectTransform rect;
-    public Text childText, childTitle;
+    public Text childText, childTitle, childTimestamp;
+    public Message relatedMessage;
 
     public void Init (int _membersCount) {
         if (_membersCount <= 2) Destroy(childTitle);
@@ -35,5 +36,9 @@ public class BubbleContentHandler : MonoBehaviour {
 
     public void SetTitle(string _title) {
         childTitle.text = _title;
+    }
+
+    public void SetTimestamp(string _time) {
+        childTimestamp.text = _time;
     }
 }

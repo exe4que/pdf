@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class DocumentManager : MonoBehaviour {
 
-    public GameObject greenBubble, greenContainer, orangeBubble, orangeContainer, page;
+    public GameObject greenBubble, greenContainer, greyBubble, greyContainer, orangeBubble, orangeContainer, page;
     private int activePage, activeColumn;
     private Transform activeParent;
     private string mainMember;
@@ -28,8 +28,8 @@ public class DocumentManager : MonoBehaviour {
         ManageDocumentFlow();
 
         bool isMainMember = _message.emitter == mainMember;
-        GameObject bubble = isMainMember ? greenBubble : orangeBubble;
-        GameObject container = isMainMember ? greenContainer : orangeContainer;
+        GameObject bubble = _message.emitter == null ? greyBubble : isMainMember ? greenBubble : orangeBubble;
+        GameObject container = _message.emitter == null ? greyContainer : isMainMember ? greenContainer : orangeContainer;
 
         GameObject newContainer = Instantiate(container, activeParent);
         GameObject newBubble = Instantiate(bubble, newContainer.transform);
@@ -37,7 +37,9 @@ public class DocumentManager : MonoBehaviour {
         BubbleContentHandler bubbleHandler = newBubble.GetComponent<BubbleContentHandler>();
         bubbleHandler.Init(fileLoader.members.Count);
         bubbleHandler.SetText(_message.message);
-        if (fileLoader.members.Count > 2) bubbleHandler.SetTitle(_message.emitter);
+        if (fileLoader.members.Count > 2 && _message.emitter != null) bubbleHandler.SetTitle(_message.emitter);
+        if (_message.emitter != null) bubbleHandler.SetTimestamp(_message.dateTime.ToShortTimeString());
+        bubbleHandler.relatedMessage = _message;
         lastBubble = bubbleHandler;
         lastContainer = newContainer.transform;
     }
@@ -56,8 +58,12 @@ public class DocumentManager : MonoBehaviour {
                 foreach (Transform t in lastBubble.transform) {
                     if (t.gameObject.name == "Text") {
                         txt = t.GetComponent<Text>();
-                        txt.resizeTextMinSize = 0;
-                        txt.resizeTextForBestFit = true;
+                        //txt.resizeTextMinSize = 0;
+                        //txt.resizeTextForBestFit = true;
+                        txt.fontSize = 18;
+                        Debug.Log("lenght = " + txt.text.Length);
+                        Debug.Log("related lenght = " + lastBubble.GetComponent<BubbleContentHandler>().relatedMessage.message.Length);
+                        //txt.text = lastBubble.GetComponent<BubbleContentHandler>().relatedMessage.message;
                     }
                 }
                 lastBubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;

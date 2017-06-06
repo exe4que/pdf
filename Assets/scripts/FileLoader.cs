@@ -77,10 +77,10 @@ public class FileLoader : MonoBehaviour {
                 continue;
             }
 
-            if (sourceText[i].Split(new string[] { ": " }, StringSplitOptions.None).Length == 1) {
-                sourceText[i] = null;
-                continue;
-            }
+            //if (sourceText[i].Split(new string[] { ": " }, StringSplitOptions.None).Length == 1) {
+            //    sourceText[i] = null;
+            //    continue;
+            //}
 
         }
         sourceText = sourceText.Where(c => c != null).ToList<string>();
@@ -95,14 +95,22 @@ public class FileLoader : MonoBehaviour {
     }
 
     private Message LineToMessage(string _line) {
-        string[] split = _line.Split(new string[] { ": " }, StringSplitOptions.None);
+        string[] split;
+        string message;
+        string emitter;
+        if (_line.Contains(": ")){
+            split = _line.Split(new string[] { ": " }, StringSplitOptions.None);
+            message = split[1].TrimStart();
+            split = split[0].Split('-');
+            emitter = split[1].TrimStart();
 
-        string message = split[1].TrimStart();
-        split = split[0].Split('-');
-        string emitter = split[1].TrimStart();
-
-        if (!members.Contains(emitter)) {
-            members.Add(emitter);
+            if (!members.Contains(emitter)) {
+                members.Add(emitter);
+            }
+        } else {
+            split = _line.Split('-');
+            message = split[1].TrimStart();
+            emitter = null;
         }
 
         string dateTimeString = split[0].TrimEnd();
