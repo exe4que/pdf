@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,15 +10,22 @@ public class BubbleContentHandler : MonoBehaviour {
 
     ContentSizeFitter filter;
     RectTransform rect;
-    public Text childText, childTitle, childTimestamp;
+    private TextMeshProUGUI childText, childTitle, childTimestamp;
+    private Image childImage;
     public Message relatedMessage;
 
     public void Init (int _membersCount) {
-        if (_membersCount <= 2) Destroy(childTitle);
         filter = this.GetComponent<ContentSizeFitter>();
         rect = this.GetComponent<RectTransform>();
-        //childText = this.GetComponentInChildren<Text>();
-	}
+        foreach (Transform t in transform) {
+            if (t.name.Equals("Title")) childTitle = t.gameObject.GetComponent<TextMeshProUGUI>();
+            if (t.name.Equals("Text")) childText = t.GetComponent<TextMeshProUGUI>();
+            if (t.name.Equals("Timestamp")) childTimestamp = t.GetComponent<TextMeshProUGUI>();
+            if (t.name.Equals("Image")) childImage = t.GetComponent<Image>();
+        }
+        if (_membersCount <= 2) Destroy(childTitle);
+        if (!relatedMessage.hasImage) Destroy(childImage);
+    }
 
     public void ApplyMaxSize() {
         //filter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -31,7 +39,7 @@ public class BubbleContentHandler : MonoBehaviour {
 
 
     public void SetText(string _text) {
-        childText.text = _text;
+        childText.SetText(_text);
     }
 
     public void SetTitle(string _title) {

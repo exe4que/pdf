@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,13 +34,14 @@ public class DocumentManager : MonoBehaviour {
 
         GameObject newContainer = Instantiate(container, activeParent);
         GameObject newBubble = Instantiate(bubble, newContainer.transform);
-
+        
         BubbleContentHandler bubbleHandler = newBubble.GetComponent<BubbleContentHandler>();
+        bubbleHandler.relatedMessage = _message;
         bubbleHandler.Init(fileLoader.members.Count);
         bubbleHandler.SetText(_message.message);
         if (fileLoader.members.Count > 2 && _message.emitter != null) bubbleHandler.SetTitle(_message.emitter);
         if (_message.emitter != null) bubbleHandler.SetTimestamp(_message.dateTime.ToShortTimeString());
-        bubbleHandler.relatedMessage = _message;
+        
         lastBubble = bubbleHandler;
         lastContainer = newContainer.transform;
     }
@@ -54,15 +56,13 @@ public class DocumentManager : MonoBehaviour {
                 lastContainerTransform.sizeDelta = new Vector2(384, 1080);
                 lastContainer.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(20, 0, 0, 0);
                 lastBubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(18, 5, 0, 0);
-                Text txt;
+                TextMeshProUGUI txt;
                 foreach (Transform t in lastBubble.transform) {
                     if (t.gameObject.name == "Text") {
-                        txt = t.GetComponent<Text>();
-                        //txt.resizeTextMinSize = 0;
-                        //txt.resizeTextForBestFit = true;
-                        txt.fontSize = 18;
-                        Debug.Log("lenght = " + txt.text.Length);
-                        Debug.Log("related lenght = " + lastBubble.GetComponent<BubbleContentHandler>().relatedMessage.message.Length);
+                        txt = t.GetComponent<TextMeshProUGUI>();
+                        txt.fontSizeMin = 5;
+                        txt.enableAutoSizing = true;
+                        txt.overflowMode = TextOverflowModes.Truncate;
                         //txt.text = lastBubble.GetComponent<BubbleContentHandler>().relatedMessage.message;
                     }
                 }

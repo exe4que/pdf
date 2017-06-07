@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Globalization;
+using System.Text;
 #if UNITY_EDITOR || UNITY_STANDALONE
 using System.Windows.Forms;
 #endif
@@ -98,6 +100,7 @@ public class FileLoader : MonoBehaviour {
         string[] split;
         string message;
         string emitter;
+        bool hasImage=false;
         if (_line.Contains(": ")){
             split = _line.Split(new string[] { ": " }, StringSplitOptions.None);
             message = split[1].TrimStart();
@@ -112,11 +115,22 @@ public class FileLoader : MonoBehaviour {
             message = split[1].TrimStart();
             emitter = null;
         }
-
+        if(message.Contains("<Archivo omitido>")){
+            hasImage = true;
+            message = message.Replace("<Archivo omitido>", String.Empty);
+        }
+        message = DecodeUTF16(message);
         string dateTimeString = split[0].TrimEnd();
         dateTimeString = dateTimeString.Replace(",", string.Empty);
-        DateTime dateTime = DateTime.Parse(dateTimeString);
-        return new Message(dateTime, emitter, message);
+        DateTime dateTime = Convert.ToDateTime(dateTimeString, new System.Globalization.CultureInfo("es-ES", true));
+        return new Message(dateTime, emitter, message, hasImage);
+    }
+
+    string DecodeUTF16(string text) {
+        return Regex.Replace(
+            text,
+            @"\\U(?<Value>[a-zA-Z0-9]{8})",
+            m => char.ConvertFromUtf32(int.Parse(m.Groups["Value"].Value, NumberStyles.HexNumber)));
     }
 
 }
@@ -125,11 +139,13 @@ public struct Message {
     public DateTime dateTime;
     public string emitter;
     public string message;
+    public bool hasImage;
 
-    public Message(DateTime _dateTime, string _emitter, string _message) {
+    public Message(DateTime _dateTime, string _emitter, string _message, bool _hasImage) {
         dateTime = _dateTime;
         emitter = _emitter;
         message = _message;
+        hasImage = _hasImage;
     }
 
 

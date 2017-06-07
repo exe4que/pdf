@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 2651e9d8ab6372c43ae1d3ef27f1e29b
+timeCreated: 1496805433
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: OpenSansEmoji
+  fontNames:
+  - OpenSansEmoji
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
