@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using UnityEngine;
 
 public class DocumentRenderer : MonoBehaviour, PageRenderer {
 
+    public Camera attachedCamera;
     private FileLoader fileLoader;
     private DocumentManager documentManager;
     private bool start = false;
-    private int index=0, tick=1;
+    private int index=0, tick=1, pageCount, activePage = 1;
+    private DateTime lastDate;
 
     private void Update() {
         if (start && index < fileLoader.messages.Count) {
@@ -16,8 +20,15 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
                 documentManager.AdjustLastBubbleSize();
             }
             if(tick==2) {
-                documentManager.AddMessage(fileLoader.messages[index]);
-                index++;
+                Message mes = fileLoader.messages[index];
+                if (lastDate == null || lastDate.ToShortDateString() != mes.dateTime.ToShortDateString()) {
+                    lastDate = mes.dateTime;
+                    Message dateTag = new Message(mes.dateTime, null, mes.dateTime.ToLongDateString(), false);
+                    documentManager.AddMessage(dateTag);
+                } else {
+                    documentManager.AddMessage(fileLoader.messages[index]);
+                    index++;
+                }
                 tick = 0;
             }
             tick++;
@@ -25,16 +36,17 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
     }
 
     private void Init() {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
         fileLoader = GetComponent<FileLoader>();
         documentManager = GameObject.FindGameObjectWithTag("DocumentManager").GetComponent<DocumentManager>();
         start = true;
     }
     public int GetCurrentPage() {
-        throw new NotImplementedException();
+        return activePage;
     }
 
     public int GetPageCount() {
-        return 1;
+        return pageCount;
     }
 
     public void LoadDocument() {
@@ -42,18 +54,24 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
     }
 
     public void NextPage() {
-        throw new NotImplementedException();
+        activePage++;
+        attachedCamera.transform.position += Vector3.up * -10;
     }
 
     public void Page(int _page) {
-        throw new NotImplementedException();
+        activePage = _page;
+        attachedCamera.transform.position = Vector3.up * (_page-1) * -10;
     }
 
     public void PreviousPage() {
-        throw new NotImplementedException();
+        activePage--;
+        attachedCamera.transform.position += Vector3.up * 10;
     }
 
     public void Render() {
-        throw new NotImplementedException();
+    }
+
+    public void SetPageCount(int _count) {
+        pageCount = _count;
     }
 }

@@ -119,7 +119,7 @@ public class FileLoader : MonoBehaviour {
             hasImage = true;
             message = message.Replace("<Archivo omitido>", String.Empty);
         }
-        message = DecodeUTF16(message);
+        //message = DecodeUTF16(message);
         string dateTimeString = split[0].TrimEnd();
         dateTimeString = dateTimeString.Replace(",", string.Empty);
         DateTime dateTime = Convert.ToDateTime(dateTimeString, new System.Globalization.CultureInfo("es-ES", true));

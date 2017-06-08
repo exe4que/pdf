@@ -4,6 +4,7 @@
     void PreviousPage();
     void Render();
     int GetPageCount();
+    void SetPageCount(int _count);
     int GetCurrentPage();
     void LoadDocument();
 }

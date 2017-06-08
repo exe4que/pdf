@@ -22,19 +22,21 @@ public class PdfGenerator : MonoBehaviour {
 
     PageRenderer pageRenderer;
     bool takeScreenshoots = false;
-    Texture2D[] docTextures;
+    public Texture2D[] docTextures;
 
     private void Init() {
         pageRenderer = GetComponent<PageRenderer>();
         docTextures = new Texture2D[pageRenderer.GetPageCount()];
-        pageRenderer.Render();
-        docTextures[pageRenderer.GetCurrentPage()] = TakeScreenshot(mainCam, 768, 1102);
+        //Debug.Log("pageRenderer.GetPageCount(): " + pageRenderer.GetPageCount());
+        pageRenderer.Page(1);
+        //Debug.Log("pageRenderer.GetCurrentPage(): " + pageRenderer.GetCurrentPage());
+        docTextures[pageRenderer.GetCurrentPage()-1] = TakeScreenshot(mainCam, 768, 1102);
     }
     private void Update() {
         if (takeScreenshoots) {
-            if (pageRenderer.GetCurrentPage() < pageRenderer.GetPageCount()-1) {
+            if (pageRenderer.GetCurrentPage()-1 < pageRenderer.GetPageCount()-1) {
                 pageRenderer.NextPage();
-                docTextures[pageRenderer.GetCurrentPage()] = TakeScreenshot(mainCam, 768, 1102);
+                docTextures[pageRenderer.GetCurrentPage()-1] = TakeScreenshot(mainCam, 768, 1102);
             } else {
                 takeScreenshoots = false;
                 StartCoroutine("GeneratePDF2");

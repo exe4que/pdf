@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,21 +8,26 @@ using UnityEngine.UI;
 public class DocumentManager : MonoBehaviour {
 
     public GameObject greenBubble, greenContainer, greyBubble, greyContainer, orangeBubble, orangeContainer, page;
+    public Sprite[] backgrounds;
     private int activePage, activeColumn;
     private Transform activeParent;
     private string mainMember;
     private Dropdown cmbMembers;
     private FileLoader fileLoader;
+    private DocumentRenderer documentRenderer;
     private BubbleContentHandler lastBubble;
     private Transform lastContainer;
     private float accumulatedHeight;
+    private int lastBackground = 0;
 
     private void Awake() {
         activeParent = GameObject.Find("Column1").transform;
         cmbMembers = GameObject.FindGameObjectWithTag("Members").GetComponent<Dropdown>();
         fileLoader = GameObject.FindGameObjectWithTag("Engine").GetComponent<FileLoader>();
+        documentRenderer = GameObject.FindGameObjectWithTag("Engine").GetComponent<DocumentRenderer>();
         activePage = 1;
         activeColumn = 1;
+        documentRenderer.SetPageCount(1);
     }
 
     public void AddMessage(Message _message) {
@@ -85,6 +91,13 @@ public class DocumentManager : MonoBehaviour {
                 GameObject newPage = Instantiate(page, this.transform);
                 activePage++;
                 newPage.name = "Page" + activePage;
+                documentRenderer.SetPageCount(activePage);
+                int backIndex;
+                do {
+                    backIndex = (int) (UnityEngine.Random.Range(0, backgrounds.Length - 1));
+                } while (backIndex == lastBackground);
+                lastBackground = backIndex;
+                newPage.GetComponent<Image>().sprite = backgrounds[backIndex]; 
                 foreach (Transform tra in newPage.transform) {
                     if (tra.gameObject.name == "Column1") {
                         activeParent = tra;

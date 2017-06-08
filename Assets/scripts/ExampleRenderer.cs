@@ -38,6 +38,14 @@ public class ExampleRenderer : MonoBehaviour, PageRenderer {
     public void Render() {
         logo.position = positions[pos];
     }
+
+    public int SetPageCount() {
+        throw new NotImplementedException();
+    }
+
+    public void SetPageCount(int _count) {
+        throw new NotImplementedException();
+    }
 }
 
 
