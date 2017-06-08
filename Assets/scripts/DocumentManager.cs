@@ -79,7 +79,7 @@ public class DocumentManager : MonoBehaviour {
             accumulatedHeight += lastContainerTransform.sizeDelta.y;
         }
         
-        if (accumulatedHeight > 1082f) {
+        if (accumulatedHeight > 1086f) {
             if (activeColumn == 1) {
                 foreach (Transform tra in activeParent.parent) {
                     if (tra.gameObject.name == "Column2") {
