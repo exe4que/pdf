@@ -28,6 +28,9 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
                 } else {
                     documentManager.AddMessage(fileLoader.messages[index]);
                     index++;
+
+                    float perc = (index * 100) / fileLoader.messages.Count;
+                    Debug.Log(index + "/" + fileLoader.messages.Count + " (" + perc + "%)");
                 }
                 tick = 0;
             }
