@@ -15,16 +15,17 @@ public class FileLoader : MonoBehaviour {
 
     public List<string> sourceText;
     public List<Message> messages;
-    public List<String> members;
+    public Member[] members;
+    public int GREYBUBBLECONT = 0;
 
     private UnityEngine.UI.Button btnGenerate;
     private Dropdown cmbMembers;
-    private DocumentManager documentManager;
+    private int lastMessageDay = -1;
 
     private void Awake() {
+        members = new Member[30];
         btnGenerate = GameObject.Find("btnGeneratePdf").GetComponent<UnityEngine.UI.Button>();
         cmbMembers = GameObject.FindGameObjectWithTag("Members").GetComponent<Dropdown>();
-        documentManager = GameObject.FindGameObjectWithTag("DocumentManager").GetComponent<DocumentManager>();
     }
 
     public void LoadFile() {
@@ -50,29 +51,30 @@ public class FileLoader : MonoBehaviour {
             foreach (string line in sourceText) {
                 messages.Add(LineToMessage(line));
             }
-
+            sourceText.Clear();
+            RemoveNullMembers();
             cmbMembers.options.Clear();
-            foreach (string member in members) {
-                cmbMembers.options.Add(new Dropdown.OptionData(member));
+            foreach (Member member in members) {
+                cmbMembers.options.Add(new Dropdown.OptionData(member.name));
             }
 
             cmbMembers.interactable = true;
             btnGenerate.interactable = true;
-        } else{
+        } else {
             cmbMembers.interactable = false;
             btnGenerate.interactable = false;
         }
     }
 
     private void CleanSourceText() {
-        for (int i = sourceText.Count-1; i > -1; i--) {
+        for (int i = sourceText.Count - 1; i > -1; i--) {
 
             Regex rgx = new Regex(@"\d{1,2}/\d{1,2}/\d{2}");
             Match mat = sourceText[i].Length < 8 ? rgx.Match(sourceText[i]) : rgx.Match(sourceText[i], 0, 8);
             //Debug.Log(mat);
             if (mat.ToString().Equals(String.Empty)) {
                 if ((i - 1) >= 0) {
-                    sourceText[i - 1] = sourceText[i - 1] +"\n"+ sourceText[i];
+                    sourceText[i - 1] = sourceText[i - 1] + "\n" + sourceText[i];
                     //Debug.Log(sourceText[i - 1]);
                 }
                 sourceText[i] = null;
@@ -88,41 +90,50 @@ public class FileLoader : MonoBehaviour {
         sourceText = sourceText.Where(c => c != null).ToList<string>();
     }
 
-    private void SplitLongMessages() {
-        for (int i = 0; i < sourceText.Count; i++) {
-            int line = sourceText[i].Count(f => f == '\n');
-
-        }
-
-    }
-
     private Message LineToMessage(string _line) {
         string[] split;
         string message;
         string emitter;
-        bool hasImage=false;
-        if (_line.Contains(": ")){
+        bool hasImage = false;
+        if (_line.Contains(": ")) {
             split = _line.Split(new string[] { ": " }, StringSplitOptions.None);
             message = split[1].TrimStart();
             split = split[0].Split('-');
             emitter = split[1].TrimStart();
 
-            if (!members.Contains(emitter)) {
-                members.Add(emitter);
+            bool found = false;
+            for (int i = 0; i < members.Length && !found; i++) {
+                if (members[i].name == null) {
+                    members[i] = new Member(emitter);
+                    found = true;
+                } else {
+                    if (members[i].name.Equals(emitter)) {
+                        members[i].messageCount++;
+                        found = true;
+                    }
+                }
             }
         } else {
             split = _line.Split('-');
             message = split[1].TrimStart();
             emitter = null;
         }
-        if(message.Contains("<Archivo omitido>")){
+        if (message.Contains("<Archivo omitido>")) {
             hasImage = true;
             message = message.Replace("<Archivo omitido>", String.Empty);
         }
-        //message = DecodeUTF16(message);
+
+        
         string dateTimeString = split[0].TrimEnd();
         dateTimeString = dateTimeString.Replace(",", string.Empty);
         DateTime dateTime = Convert.ToDateTime(dateTimeString, new System.Globalization.CultureInfo("es-ES", true));
+
+        if (emitter == null || dateTime.Day != lastMessageDay) {
+            GREYBUBBLECONT++;
+        }
+        if (dateTime.Day != lastMessageDay) {
+            lastMessageDay = dateTime.Day;
+        }
         return new Message(dateTime, emitter, message, hasImage);
     }
 
@@ -131,6 +142,16 @@ public class FileLoader : MonoBehaviour {
             text,
             @"\\U(?<Value>[a-zA-Z0-9]{8})",
             m => char.ConvertFromUtf32(int.Parse(m.Groups["Value"].Value, NumberStyles.HexNumber)));
+    }
+
+    private void RemoveNullMembers() {
+        List<Member> list = new List<Member>();
+        for (int i = 0; i < members.Length; i++) {
+            if (members[i].name!=null) {
+                list.Add(members[i]);
+            }
+        }
+        members = list.ToArray();
     }
 
 }
@@ -147,8 +168,22 @@ public struct Message {
         message = _message;
         hasImage = _hasImage;
     }
-
-
 }
+[Serializable]
+public struct Member {
+    public string name;
+    public int messageCount;
+
+    public Member(string _name) {
+        name = _name;
+        messageCount = 1;
+    }
+
+    public void IncreaseCounter() {
+        messageCount++;
+    }
+}
+
+
 
 

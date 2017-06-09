@@ -21,7 +21,7 @@ public class DocumentRenderer : MonoBehaviour, PageRenderer {
             }
             if(tick==2) {
                 Message mes = fileLoader.messages[index];
-                if (lastDate == null || lastDate.ToShortDateString() != mes.dateTime.ToShortDateString()) {
+                if (lastDate.Day != mes.dateTime.Day) {
                     lastDate = mes.dateTime;
                     Message dateTag = new Message(mes.dateTime, null, mes.dateTime.ToLongDateString(), false);
                     documentManager.AddMessage(dateTag);

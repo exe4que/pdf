@@ -9,7 +9,9 @@ public class DocumentManager : MonoBehaviour {
 
     public GameObject greenBubble, greenContainer, greyBubble, greyContainer, orangeBubble, orangeContainer, page;
     public Sprite[] backgrounds;
-    private int activePage, activeColumn;
+    public GameObject[][] bubbles;
+    public GameObject[][] containers;
+    private int activePage, activeColumn, lastGreenPulled, lastOrangePulled, lastGreyPulled;
     private Transform activeParent;
     private string mainMember;
     private Dropdown cmbMembers;
@@ -27,27 +29,51 @@ public class DocumentManager : MonoBehaviour {
         documentRenderer = GameObject.FindGameObjectWithTag("Engine").GetComponent<DocumentRenderer>();
         activePage = 1;
         activeColumn = 1;
+        lastGreenPulled = -1;
+        lastOrangePulled = -1;
+        lastGreyPulled = -1;
         documentRenderer.SetPageCount(1);
     }
 
     public void AddMessage(Message _message) {
-        
+
         ManageDocumentFlow();
 
         bool isMainMember = _message.emitter == mainMember;
-        GameObject bubble = _message.emitter == null ? greyBubble : isMainMember ? greenBubble : orangeBubble;
-        GameObject container = _message.emitter == null ? greyContainer : isMainMember ? greenContainer : orangeContainer;
+        int bubbleType = _message.emitter == null ? 2 : isMainMember ? 0 : 1;
+        //Debug.Log("bubbleType= " + bubbleType);
+        GameObject newContainer;
+        GameObject newBubble;
+        if (bubbleType == 2) {
+            lastGreyPulled++;
+            newContainer = containers[2][lastGreyPulled];
+            newBubble = bubbles[2][lastGreyPulled];
+        } else {
+            if (bubbleType == 0) {
+                lastGreenPulled++;
+                newContainer = containers[0][lastGreenPulled];
+                newBubble = bubbles[0][lastGreenPulled];
+            } else {
+                lastOrangePulled++;
+                newContainer = containers[1][lastOrangePulled];
+                newBubble = bubbles[1][lastOrangePulled];
+            }
 
-        GameObject newContainer = Instantiate(container, activeParent);
-        GameObject newBubble = Instantiate(bubble, newContainer.transform);
-        
+        }
+
+        newContainer.transform.SetParent(activeParent);
+        newContainer.SetActive(true);
+
+        newBubble.transform.SetParent(newContainer.transform);
+        newBubble.SetActive(true);
+
         BubbleContentHandler bubbleHandler = newBubble.GetComponent<BubbleContentHandler>();
         bubbleHandler.relatedMessage = _message;
-        bubbleHandler.Init(fileLoader.members.Count);
+        bubbleHandler.Init(fileLoader.members.Length);
         bubbleHandler.SetText(_message.message);
-        if (fileLoader.members.Count > 2 && _message.emitter != null) bubbleHandler.SetTitle(_message.emitter);
+        if (fileLoader.members.Length > 2 && _message.emitter != null) bubbleHandler.SetTitle(_message.emitter);
         if (_message.emitter != null) bubbleHandler.SetTimestamp(_message.dateTime.ToShortTimeString());
-        
+
         lastBubble = bubbleHandler;
         lastContainer = newContainer.transform;
     }
@@ -75,10 +101,10 @@ public class DocumentManager : MonoBehaviour {
                 lastBubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
                 lastBubbleTransform.sizeDelta = new Vector2(340, 1080);
             }
-            
+
             accumulatedHeight += lastContainerTransform.sizeDelta.y;
         }
-        
+
         if (accumulatedHeight > 1086f) {
             if (activeColumn == 1) {
                 foreach (Transform tra in activeParent.parent) {
@@ -97,25 +123,27 @@ public class DocumentManager : MonoBehaviour {
                     backIndex = (int) (UnityEngine.Random.Range(0, backgrounds.Length - 1));
                 } while (backIndex == lastBackground);
                 lastBackground = backIndex;
-                newPage.GetComponent<Image>().sprite = backgrounds[backIndex]; 
+                newPage.GetComponent<Image>().sprite = backgrounds[backIndex];
                 foreach (Transform tra in newPage.transform) {
                     if (tra.gameObject.name == "Column1") {
                         activeParent = tra;
                     }
                 }
                 activeColumn = 1;
-                
+
             }
             lastContainer.transform.SetParent(activeParent);
             accumulatedHeight = lastContainer.GetComponent<RectTransform>().sizeDelta.y;
         }
-        string name = lastContainer == null ? "null" : lastContainer.name;
-        Rect r = lastContainer == null ? new Rect() : lastContainer.GetComponent<RectTransform>().rect;
+        //string name = lastContainer == null ? "null" : lastContainer.name;
+        //Rect r = lastContainer == null ? new Rect() : lastContainer.GetComponent<RectTransform>().rect;
         //Debug.Log("Page: " + activePage + ", Column: " + activeColumn + ", Parent: " + activeParent.gameObject.name + ", Container: " + name + ", Height: " + r);
     }
 
     public void SetMainMember() {
-        mainMember = fileLoader.members[cmbMembers.value];
+        mainMember = fileLoader.members[cmbMembers.value].name;
+        GeneratePool();
+        documentRenderer.LoadDocument();
     }
 
     public void AdjustLastBubbleSize() {
@@ -123,5 +151,47 @@ public class DocumentManager : MonoBehaviour {
             return;
         }
         lastBubble.ApplyMaxSize();
+    }
+
+    private void GeneratePool() {
+        bubbles = new GameObject[3][];
+        containers = new GameObject[3][];
+        int mainCont = 0;
+        GameObject pool = GameObject.Find("Pool");
+        for (int i = 0; i < fileLoader.members.Length; i++) {
+            if (fileLoader.members[i].name.Equals(mainMember)) {
+                mainCont = fileLoader.members[i].messageCount;
+            }
+        }
+        for (int i = 0; i < bubbles.Length; i++) {
+            if (i == 0) {
+                bubbles[i] = new GameObject[mainCont];
+                containers[i] = new GameObject[mainCont];
+            } else
+            if (i == 1) {
+                bubbles[i] = new GameObject[fileLoader.messages.Count - mainCont];
+                containers[i] = new GameObject[fileLoader.messages.Count - mainCont];
+            }
+            if (i == 2) {
+                bubbles[i] = new GameObject[fileLoader.GREYBUBBLECONT];
+                containers[i] = new GameObject[fileLoader.GREYBUBBLECONT];
+            }
+            for (int j = 0; j < bubbles[i].Length; j++) {
+                if (i == 0) {
+                    bubbles[i][j] = Instantiate(greenBubble, pool.transform);
+                    containers[i][j] = Instantiate(greenContainer, pool.transform);
+                }
+                if (i == 1) {
+                    bubbles[i][j] = Instantiate(orangeBubble, pool.transform);
+                    containers[i][j] = Instantiate(orangeContainer, pool.transform);
+                }
+                if (i == 2) {
+                    bubbles[i][j] = Instantiate(greyBubble, pool.transform);
+                    containers[i][j] = Instantiate(greyContainer, pool.transform);
+                }
+                bubbles[i][j].SetActive(false);
+                containers[i][j].SetActive(false);
+            }
+        }
     }
 }
